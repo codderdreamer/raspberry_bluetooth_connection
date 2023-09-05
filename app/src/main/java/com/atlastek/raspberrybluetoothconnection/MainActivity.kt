@@ -52,81 +52,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         mainbinding.connect.setOnClickListener{
-            println("hey")
-
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.BLUETOOTH_CONNECT
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 println("Bluetooth izni yok!")
-
             }
             else{
                 println("Bluetooth izni alındı...")
                 ConnectThread(this@MainActivity,bluetoothAdapter, mainbinding).run()
-
             }
-
-
         }
-
-
-
-
-
-        /*
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-
-        if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-        }
-        else{
-            println("Bluetooth enable!")
-            ConnectThread(this@MainActivity,bluetoothAdapter).run()
-
-        }
-
-         */
-
     }
 
     private var requestBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -152,16 +89,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     public class ConnectThread(context : Context, bluetoothAdapter: BluetoothAdapter?, mainbinding: ActivityMainBinding?) : Thread() {
-
-
         val bluetoothAdapter = bluetoothAdapter
         val context = context
         val mainbinding = mainbinding
 
         private val MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         var mmSocket: BluetoothSocket? = null
-
-
 
         override fun run() {
             val REQUEST_ENABLE_BT = 1
@@ -179,13 +112,6 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.BLUETOOTH_CONNECT
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return
             }
 
