@@ -1,6 +1,7 @@
 package com.atlastek.raspberrybluetoothconnection
 
 import android.Manifest
+import android.R
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
@@ -12,9 +13,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.startActivity
 import com.atlastek.raspberrybluetoothconnection.databinding.ActivityMainBinding
 import java.io.IOException
 import java.util.UUID
@@ -29,29 +33,26 @@ class MainActivity : AppCompatActivity() {
         mainbinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainbinding.root)
 
-        val REQUEST_ENABLE_BT = 1
-
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.getAdapter()
+        val mmSocket : BluetoothSocket? = null
+
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
             println("Device doesn't support Bluetooth")
         }
 
-        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestMultiplePermissions.launch(arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT))
-
         }
         else{
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             requestBluetooth.launch(enableBtIntent)
         }
 
-        mainbinding.connect.setOnClickListener{
+        mainbinding.scanPairDevices.setOnClickListener{
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.BLUETOOTH_CONNECT
@@ -61,9 +62,10 @@ class MainActivity : AppCompatActivity() {
             }
             else{
                 println("Bluetooth izni alındı...")
-                ConnectThread(this@MainActivity,bluetoothAdapter, mainbinding).run()
+                ConnectThread(this@MainActivity,bluetoothAdapter, mainbinding, mmSocket).run()
             }
         }
+
     }
 
     private var requestBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -88,13 +90,15 @@ class MainActivity : AppCompatActivity() {
         println("requestCode : " + requestCode)
     }
 
-    public class ConnectThread(context : Context, bluetoothAdapter: BluetoothAdapter?, mainbinding: ActivityMainBinding?) : Thread() {
+    public class ConnectThread(context : Context, bluetoothAdapter: BluetoothAdapter?, mainbinding: ActivityMainBinding?, mmSocket : BluetoothSocket?) : Thread() {
         val bluetoothAdapter = bluetoothAdapter
         val context = context
         val mainbinding = mainbinding
+        var mmSocket = mmSocket
 
+        val bluetoothPairedList = ArrayList<String>()
+        val bluetoothDeviceList = ArrayList<BluetoothDevice>()
         private val MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-        var mmSocket: BluetoothSocket? = null
 
         override fun run() {
             val REQUEST_ENABLE_BT = 1
@@ -123,40 +127,56 @@ class MainActivity : AppCompatActivity() {
                 println("deviceName: " + deviceName)
                 println("deviceHardwareAddress: " + deviceHardwareAddress)
 
-                mainbinding?.deviceName?.text = deviceName
-                mainbinding?.deviceMac?.text = deviceHardwareAddress
-                bluetoothdevice = device
+                bluetoothPairedList.add((deviceName + "  /  " + deviceHardwareAddress))
+                bluetoothDeviceList.add(device)
             }
             println("stop")
+            println("bluetoothPairedList" + bluetoothPairedList)
 
+            val arrayAdapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, bluetoothPairedList)
+            mainbinding?.bluetoothList?.adapter   = arrayAdapter
 
-            mmSocket = bluetoothdevice?.createRfcommSocketToServiceRecord(MY_UUID)
-            // Cancel discovery because it otherwise slows down the connection.
-            //bluetoothAdapter?.cancelDiscovery()
+            mainbinding?.bluetoothList?.setOnItemClickListener { parent, _, position, _ ->
+                val selectedItem = parent.getItemAtPosition(position) as String
+                println(bluetoothDeviceList.get(position).name)
+                bluetoothdevice = bluetoothDeviceList.get(position)
 
-            mmSocket?.let { socket ->
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
-                try {
+                val intent = Intent(context, PasswordSend::class.java)
+                intent.putExtra("bluetoothdevice", bluetoothdevice)
+                context.startActivity(intent)
+
+                /*
+                mmSocket = bluetoothdevice?.createRfcommSocketToServiceRecord(MY_UUID)
+                // Cancel discovery because it otherwise slows down the connection.
+                //bluetoothAdapter?.cancelDiscovery()
+
+                mmSocket?.let { socket ->
                     // Connect to the remote device through the socket. This call blocks
                     // until it succeeds or throws an exception.
-                    mmSocket!!.connect()
-                } catch (connectException: IOException) {
-                    // Unable to connect; close the socket and return.
                     try {
-                        mmSocket!!.close()
-                    } catch (closeException: IOException) {
-                        Log.e(TAG, "Could not close the client socket", closeException)
+                        // Connect to the remote device through the socket. This call blocks
+                        // until it succeeds or throws an exception.
+                        mmSocket!!.connect()
+                    } catch (connectException: IOException) {
+                        // Unable to connect; close the socket and return.
+                        try {
+                            mmSocket!!.close()
+                        } catch (closeException: IOException) {
+                            Log.e(TAG, "Could not close the client socket", closeException)
+                        }
+
                     }
-                    return
-                }
 
-                println("success")
+                    println("success")
 
-                // The connection attempt succeeded. Perform work associated with
-                // the connection in a separate thread.
-                //manageMyConnectedSocket(socket)
+                    // The connection attempt succeeded. Perform work associated with
+                    // the connection in a separate thread.
+                    //manageMyConnectedSocket(socket)
+                } */
+
             }
+
+
 
         }
 
@@ -173,3 +193,5 @@ class MainActivity : AppCompatActivity() {
 
 
 }
+
+
