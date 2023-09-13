@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import com.atlastek.raspberrybluetoothconnection.databinding.ActivityPasswordSendBinding
 import java.io.IOException
 import java.util.UUID
+import org.json.JSONObject
 
 
 class PasswordSend : AppCompatActivity() {
@@ -24,7 +25,6 @@ class PasswordSend : AppCompatActivity() {
         setContentView(passwordBinding.root)
 
         passwordBinding.connectText.text = "Connecting..."
-        var mmBuffer: ByteArray = ByteArray(1024)
 
         val MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         var mmSocket: BluetoothSocket? = null
@@ -52,29 +52,30 @@ class PasswordSend : AppCompatActivity() {
             }
             println("success")
             passwordBinding.connectText.text = "Connected."
-        }
-
-        passwordBinding.sendWifi.setOnClickListener{
-            var wifiname = passwordBinding.wifiName.text.toString()
-            var wifipassword = passwordBinding.wifiPassword.text.toString()
-            var message = wifiname  + " " + wifipassword
-            mmSocket?.outputStream?.write(message.toByteArray())
-            while (true){
-                try {
-                    mmSocket?.inputStream?.read(mmBuffer)
-                    passwordBinding.deviceIp.text = String(mmBuffer)
-                    println(String(mmBuffer))
-                    break;
-                } catch (e: IOException) {
-                    Log.d(TAG, "Input stream was disconnected", e)
+            val threadLamda = Thread {
+                while (true) {
+                    try {
+                        var mmBuffer: ByteArray = ByteArray(1024)
+                        mmSocket?.inputStream?.read(mmBuffer)
+                        val json = JSONObject(String(mmBuffer))
+                        val command = json.getString("Command")
+                        runOnUiThread { passwordBinding.deviceIp.text = String(mmBuffer) }
+                        println(String(mmBuffer))
+                        //break;
+                    } catch (e: IOException) {
+                        Log.d(TAG, "Input stream was disconnected", e)
+                        break;
+                    }
                 }
             }
-
+            threadLamda.start();
         }
 
-
-
-
-
+        passwordBinding.sendWifi.setOnClickListener {
+            var wifiname = passwordBinding.wifiName.text.toString()
+            var wifipassword = passwordBinding.wifiPassword.text.toString()
+            var message = wifiname + " " + wifipassword
+            mmSocket?.outputStream?.write(message.toByteArray())
+        }
     }
 }
