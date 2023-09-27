@@ -1,24 +1,27 @@
 package com.atlastek.raspberrybluetoothconnection
 
 import android.Manifest
-import android.R
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.ContextCompat
 import com.atlastek.raspberrybluetoothconnection.databinding.ActivityMainBinding
 import java.io.IOException
 import java.util.UUID
@@ -36,6 +39,14 @@ class MainActivity : AppCompatActivity() {
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.getAdapter()
         val mmSocket : BluetoothSocket? = null
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestMultiplePermissions.launch(arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.CHANGE_WIFI_STATE
+            ))
+        }
 
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
@@ -137,46 +148,46 @@ class MainActivity : AppCompatActivity() {
             mainbinding?.bluetoothList?.adapter   = arrayAdapter
 
             mainbinding?.bluetoothList?.setOnItemClickListener { parent, _, position, _ ->
+
+                ConnectDeviceThread(context,bluetoothDeviceList,mainbinding,position,parent).run()
+
+
+                //val selectedItem = parent.getItemAtPosition(position) as String
+                //println(bluetoothDeviceList.get(position).name)
+                //bluetoothdevice = bluetoothDeviceList.get(position)
+
+                //val intent = Intent(context, PasswordSend::class.java)
+                //intent.putExtra("bluetoothdevice", bluetoothdevice)
+                //context.startActivity(intent)
+
+            }
+
+
+
+        }
+
+        public class ConnectDeviceThread(val context: Context,
+                                         val bluetoothDeviceList: ArrayList<BluetoothDevice>?,
+                                         val mainbinding: ActivityMainBinding?,
+                                         val position: Int, val parent: AdapterView<*>
+        ) : Thread() {
+            override fun run() {
                 val selectedItem = parent.getItemAtPosition(position) as String
-                println(bluetoothDeviceList.get(position).name)
-                bluetoothdevice = bluetoothDeviceList.get(position)
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                println(bluetoothDeviceList?.get(position)?.name)
+                val bluetoothdevice = bluetoothDeviceList?.get(position)
 
                 val intent = Intent(context, PasswordSend::class.java)
                 intent.putExtra("bluetoothdevice", bluetoothdevice)
                 context.startActivity(intent)
 
-                /*
-                mmSocket = bluetoothdevice?.createRfcommSocketToServiceRecord(MY_UUID)
-                // Cancel discovery because it otherwise slows down the connection.
-                //bluetoothAdapter?.cancelDiscovery()
-
-                mmSocket?.let { socket ->
-                    // Connect to the remote device through the socket. This call blocks
-                    // until it succeeds or throws an exception.
-                    try {
-                        // Connect to the remote device through the socket. This call blocks
-                        // until it succeeds or throws an exception.
-                        mmSocket!!.connect()
-                    } catch (connectException: IOException) {
-                        // Unable to connect; close the socket and return.
-                        try {
-                            mmSocket!!.close()
-                        } catch (closeException: IOException) {
-                            Log.e(TAG, "Could not close the client socket", closeException)
-                        }
-
-                    }
-
-                    println("success")
-
-                    // The connection attempt succeeded. Perform work associated with
-                    // the connection in a separate thread.
-                    //manageMyConnectedSocket(socket)
-                } */
-
             }
-
-
 
         }
 

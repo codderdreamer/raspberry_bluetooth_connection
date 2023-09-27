@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eeeeee"
-    tools:context=".MainActivity">
+    tools:context=".WifiList">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/linearLayoutWifiList"
         android:layout_width="fill_parent"
         android:layout_height="88dp"
         android:layout_marginBottom="30dp"
@@ -20,7 +20,7 @@
 
 
         <TextView
-            android:id="@+id/bluetooth_header"
+            android:id="@+id/wifi_select_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
@@ -30,30 +30,21 @@
             android:textColor="#032552"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="@string/bluetooth_header" />
+            android:text="@string/wifi_select_header" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/scan_pair_devices"
-        android:layout_width="218dp"
-        android:layout_height="75dp"
-        android:layout_marginTop="136dp"
-        android:text="@string/scan_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ListView
-        android:id="@+id/bluetooth_list"
+        android:id="@+id/wifiList"
         android:layout_width="351dp"
-        android:layout_height="406dp"
+        android:layout_height="500dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="50dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="96dp"
         android:background="@drawable/bluetooth_connection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scan_pair_devices"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutWifiList" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

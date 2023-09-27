@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">RaspberryBluetoothConnection</string>
+    <string name="wifi_name">Kablosuz Ağ Şifresi</string>
+    <string name="wifi_password">Kablosuz Ağ Şifresi</string>
+    <string name="send">Bağlan</string>
+    <string name="cihaz_ip">Cihaz IP :</string>
+    <string name="yazilim_version_text">Yazılım Versiyon No :</string>
+    <string name="_10_10_10_10">0.0.0.0</string>
+    <string name="yaz_c_durumu">Yazıcı Durumu :</string>
+    <string name="cihaz_seri_no">Kontrol Ünitesi Id :</string>
+    <string name="siteye_git">Siteye Git</string>
+    <string name="connecting">Bağlanıyor...</string>
+    <string name="defaultt">Default</string>
+    <string name="wifi_header">Wifi Ayarlarını Gönder</string>
+    <string name="bluetooth_header">Eşleşmiş Bluetooth Cihazına Bağlan</string>
+    <string name="scan_button">Eşleşmiş Cihazları Listele</string>
+    <string name="wifi_select_header">Wifi</string>
+
+
+
 </resources>
