@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">RaspberryBluetoothConnection</string>
-    <string name="wifi_name">Kablosuz Ağ Şifresi</string>
+    <string name="wifi_name">Kablosuz Ağ Adı</string>
     <string name="wifi_password">Kablosuz Ağ Şifresi</string>
     <string name="send">Bağlan</string>
     <string name="cihaz_ip">Cihaz IP :</string>
